@@ -2,7 +2,7 @@ library(tidyverse)
 library(ade4)
 library(ggthemes)
 
-## Import données
+## Import données (après avoir enregistré les données en .csv sur votre ordinateur)
 Noyon <- read.csv2("Noyon_2000_50ansEUDCDE.csv",
                    header = T,
                    sep = ";",

@@ -16,4 +16,5 @@ GRAVIER J., 2012, Synthèse Archéologique Urbaine. Topographie historique de la
 
 # Outils :
 R version 3.4.1 (2017-06-30) -- "Single Candle"
+
 Platform: x86_64-w64-mingw32/x64 (64-bit)

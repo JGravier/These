@@ -2,9 +2,10 @@
 Construire les temporalités urbaines de la ville de Noyon sur 2000 ans.
 
 # Données :
-Données extraites de la base de données SHAUN (Synthèse Historique et Archéologique Urbaine de la ville de Noyon). Tableau de contingence du nombre d'entités urbaines (ex : cimetière, église, artelier artisanal, etc.) qui existent par fonction urbaine sur le temps long de 2000 ans.
+Données extraites de la base de données SHAUN (Synthèse Historique et Archéologique Urbaine de la ville de Noyon). Tableau de contingence du nombre d'entités urbaines (ex : cimetière, église, atelier artisanal, etc.) qui existent par fonction urbaine sur le temps long de 2000 ans.
+[![DOI](https://zenodo.org/badge/doi/10.6084/m9.figshare.5630326.svg)](https://doi.org/10.6084/m9.figshare.5630326)
 - lignes : pas de temps chronologique arbitraire de 50 ans ([1;50], [51;100], [101;150]... jusqu'au début du 21e s.),
-- colonnes : fonctions urbaines définies selon l'adapatation du thésaurus du CNAU
+- colonnes : fonctions urbaines définies selon l'adaptation du thésaurus du Centre National d'Archéologie Urbaine
 
 
 

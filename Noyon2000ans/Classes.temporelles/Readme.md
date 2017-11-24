@@ -4,7 +4,7 @@ Construire les temporalités urbaines de la ville de Noyon sur 2000 ans.
 # Données :
 [![DOI](https://zenodo.org/badge/doi/10.6084/m9.figshare.5630326.svg)](https://doi.org/10.6084/m9.figshare.5630326)
 
-# pour plus d'informations :
+# Pour plus d'informations :
 
 - GRAVIER J., 2015, « Recognizing Temporalities in Urban Units from a Functional Approach: Three Case Studies », in GILIGNY F., DJINDJIAN F., COSTA L., MOSCATI P., ROBERT S. (éd.), CAA 2014, 21st Century Archaeology, Concepts, Methods and Tools. Proceedings of the 42nd Annual Conference on Computer Applications and Quantitative Methods in Archaeology [en ligne], Oxford : Archaeopress, pp. 371-380, URL : http://www.archaeopress.com/ArchaeopressShop/Public/download.asp?id={5CACE285-4C48-41AE-809E-E98B65C9E4CD}
 

@@ -1,0 +1,294 @@
+---
+title: "Comparaison de la trajectoire intra-urbaine fonctionnelle de la ville de Noyon selon un état de la documentation archéologique en 1984 et en 2015"
+author: "Julie Gravier"
+date: "12 juin 2018"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**Réalisation :** R version 3.5.0 (2018-04-23) -- "Joy in Playing"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+
+Contexte : cadre de la thèse de Julie Gravier, UMR 8504 Géographie-cités, Université Paris 1 - Panthéon-Sorbonne
+
+
+
+## Objectif général  
+L'objectif est de tester les effets de sources sur les analyses des briques élémentaires de la ville de Noyon sur 2 000 ans.
+
+
+### Contexte de questionnement
+Les briques élémentaires sont des objets géographiques construits dans le but d’être des marqueurs des composantes matérielles de l’espace intra-urbain. Il peut s'agir d'une église, d'un cimetière, d'une école, etC. La construction des briques élémentaires à partir de la documentation archéologique, textuelle et iconographique permet d’obtenir des informations qui sont homogènes sur 2 000 ans. Or, d’après Jean-Paul Benzécri, l’homogénéité est une des deux exigences fondamentales de l’analyse de données, et en particulier, pour les analyses des correspondances. Plus précisément, cette exigence implique que « l’unité de mesure conserve à peu près le même sens sur toute l’étendue du tableau » (Rouanet, Lépine 1976 : 139, citant Benzécri), ce qui revient à dire que les unités de mesure étudiées doivent être comparables les unes par rapport aux autres. Les briques élémentaires, qui sont définies par une fonction, une localisation et une durée dans le temps, peuvent en l’occurrence être conçues comme des unités de mesure de la matérialité de l’espace intra-urbain sur le temps long. Il est dès lors envisageable de les traiter quantitativement afin d’identifier la trajectoire de Noyon sur 2 000 ans.
+La seconde exigence de l’analyse de données exprimée par J.-P. Benzécri est celle de l’exhaustivité. Cette dernière désigne, d’une part, le fait que tous les éléments d’un ensemble soient étudiés, ou d’autre part, que l’échantillon de l’ensemble soit représentatif. Dans le cas de l’étude de l’espace intra-urbain de Noyon sur le temps long, toutes les composantes matérielles ne sont pas connues car la documentation analysée est imparfaite. Les composantes matérielles – et par conséquent les briques élémentaires – ne sont donc pas exhaustives, au sens premier donné par J.-P. Benzécri. Par ailleurs, les briques élémentaires ne sont pas non plus un échantillon statistique de la matérialité de l’espace intra-urbain. Ce problème de non exhaustivité des unités étudiées est plus largement présent dans toute analyse de données des sociétés passées et pose une question essentielle : dans quelle mesure les résultats obtenus sont-ils liés à une ancienne réalité ou à une incomplétude des données ?
+
+Rouanet, Lépine 1976	
+ROUANET H., LEPINE D., « A propos de « l’Analyse des données » selon Benzécri : Présentation et commentaires », Annee. Psychol. [en ligne], 76, 1, pp. 133‑144, URL : [http://www.persee.fr/doc/psy_0003-5033_1976_num_76_1_28132](http://www.persee.fr/doc/psy_0003-5033_1976_num_76_1_28132)
+
+
+### Objectifs précis
+L’objectif du travail a été effectué après une présentation de l’étude statistique sur l’évolution fonctionnelle de la ville de Noyon sur 2000 ans lors d’un séminaire de Master à Nanterre en février 2018 (voir présentation .pdf associée au document .Rmd). Les questions de la part de Brigitte Boissavit-Camus et de Josiane Barbier ont beaucoup porté sur les "effets de sources", remarque fréquente de la part des archéologues et historiens. Une des questions était "est-ce que ce serait possible d’évaluer la part de la documentation dans le modèle statistique" ? La question plus précise était "est-ce que s’il l’on fait une grande nouvelle fouille cela changerait les résultats" ? Au lieu d’attendre X années que l’on fasse de potentielles nouvelles fouilles dans l’espace urbanisé ancien qui permettraient d’évaluer la différence (ce qui pose en particulier problème puisque l'on ne sait pas quand dans le futur cela pourrait se produire), nous avons réalisé le chemin inverse : étudier deux tableaux de contingences par pas de temps de 50 ans (lignes) et par fonction urbaine (colonnes) des briques élémentaires, le premier représentant un état des connaissances actuels (en 2015, état de la BDD SHAUN) et le second un état des connaissances archéologiques avant la création du service archéologique (soit avant 1985). 
+
+
+## Traitements
+
+On lance préalablement les *packages* qui seront nécessaires à tous les traitements.
+```{r eval=TRUE}
+library(tidyverse)
+library(shiny)
+library(explor)
+library(ade4)
+library(ggthemes)
+```
+
+
+### Etat de la documentation en 1984
+
+Import des données : **Les briques élémentaires d'après l'état des connaissances en 1984** 
+
+
+```{r eval=TRUE}
+# jeu de données de l'opération des Halettes
+Noyon1985 <- read.csv("Noyon_2000_50ansEUDCDE_Avant1985.csv",
+                      header = TRUE,
+                      sep = ";",
+                      stringsAsFactors = F)
+# lignes : périodes chronologiques arbitraires de 50 ans depuis les origines de Noyon jusqu'à nos jours (41 périodes),
+# colonnes : fonctions urbaines traitées (10 fonctions) & date début/date fin des périodes
+
+```
+
+
+On réordonne le tableau conveablement
+```{r eval=TRUE}
+Noyon1985 <- Noyon1985 %>%
+  unite(Dates, Debut, Fin, sep = "-", remove = FALSE) # on réunit les colonnes Début et Fin par un séparateur "-"
+rownames(Noyon1985) <- Noyon1985$Dates
+
+Noyon1985_2 <- Noyon1985 %>%
+  select(F1:F11) # sélection seulement des fonctions urbaines
+```
+
+
+Quel est l'effectif total ? Egalement, test du khi-deux
+```{r eval=TRUE}
+sum(margin.table(as.matrix(Noyon1985_2), margin = 1)) # quel est l'effectif ?
+
+chisq.test(Noyon1985_2)
+```
+
+
+Exploration du jeu de données en analyse factorielle des correspondances grâce à la librairie explor
+```{r eval=TRUE}
+AFC_Noyon_1985 <- dudi.coa(Noyon1985_2,
+                          scannf = FALSE,
+                          nf = ncol(Noyon1985_2))
+# explor(AFC_Noyon_1985) 
+# lancer la commande ci-dessus normalement (ici ajout de la commande en mode commentaire car un document R Markdown statique ne gère par les applications Shiny interactives)
+```
+
+
+Import de fonctions réalisées pour le script afin de simplifier la lecture
+```{r eval=TRUE}
+source("Fonctions_VisuClasses.R")
+```
+
+
+L'objectif est maintenant de regrouper les périodes chronologiques qui sont similaires. On va réaliser une CAH (classification ascendante hiérarchique) sur les coordonnées de l'AFC.
+En faisait une CAH sur les coordonnées on prend en considération tous les axes (et non pas seulement les deux premiers, ou l'axe 1 et 3 par exemple comme lorsqu'on explore les résultats de l'AFC). Cela revient à dire que l'on a considéré toute l'information contenue dans le tableau de données initial.
+```{r eval=TRUE}
+CAH_k2_Noyon_1985 <- Noyon1985_2 %>%
+  CAH_DistKhi2() # CAH sur les coordonnées de l'AFC
+
+# calcul de l'inertie
+inertieNk <- sort(CAH_k2_Noyon_1985$height, decreasing = TRUE)
+plot(inertieNk, type = "h", xlab = "Nombre de classes", ylab = "Inertie")
+
+inertieN2k <- inertieNk/sum(inertieNk)*100
+barplot(inertieN2k[1:41], col = "#454847", border = "#454847", names.arg = seq(1, 41, 1),
+        xlab = "Nombre de classes",
+        ylab = "Part de l'inertie totale (%)",
+        main = "Noyon d'après un état des connaissances en 1984 : CAH sur distance khi-deux")
+# donc pour le présent cas, on peut découper en 5
+
+# Visuellement sur le dendogramme, cela correpond à :
+plot(CAH_k2_Noyon_1985, hang = -1, cex = 0.6, 
+     main = "Noyon d'après un état des connaissances en 1984 : CAH sur distance khi-deux",
+     xlab = "Périodes chronologiques",
+     ylab = "")
+rect.hclust(CAH_k2_Noyon_1985, 5, border = "darkorange")
+```
+
+
+Au final, l'objectif est de présicer comment qualifier ces classes chronologiques selon la surreprésentation ou la sous-représentation des fonctions urbaines.
+On travaille sur le tableau des écarts "standardisés". L'écart va alors mesurer "l'attraction" (écarts positifs) ou la "répulsion" (écarts négatifs) entre la période (i) et la fonction urbaine (j). Sous l'hypothèse d'absence de relation entre individus et variables, ces écarts sont centrés (= 0). Attention toutefois, ces écarts dits standardisés (généralement appelés résidus standardisés), sont centrés mais non réduits (leur variance étant < à 1, contrairement à une véritable standardisation où les écarts-types sont = 1). Dès lors, on peut s'intéresser aux valeurs extrêmes mais on ne peut pas émettre de seuil de significativité.
+
+``` {r eval=TRUE}
+# on découpe préalablement notre arbre de la CAH en deux classes
+TypochronoNk <- cutree(CAH_k2_Noyon_1985, k = 5)  # k = nombre de classes
+```
+
+
+Visualisation des moyennes des écarts normalisés par classes de périodes
+``` {r eval=TRUE}
+# En normalisant les écarts à l'indépendance
+EcartNoyonNorm <- Noyon1985_2 %>%
+  TabEcartPearsonResidus() %>% # Résidus de Pearson (cf. la fonction réalisée pour le script)
+  mutate(Cluster = factor(TypochronoNk, levels = 1:5))
+
+EcartNoyonNorm$Dates <- Noyon1985$Dates # on reprend les dates du tableau initial pour exporter un tableau intermédiaire afin d'être certain de savoir
+# à quelle classe appartiennent les périodes chronologiques
+write.csv(EcartNoyonNorm, "Noyon_EcartIndeNorm_1984.csv") # tableau intermédiaire
+
+EcartNoyonNorm <- EcartNoyonNorm %>%
+  select(-Dates) %>%
+  group_by(Cluster)
+EcartNoyonNorm <- EcartNoyonNorm %>%
+  summarise_all(funs(mean))
+write.csv(EcartNoyonNorm, "Noyon_EcartIndeNorm_meanCluster_1984.csv") # tableau intermédiaire des moyennes par classes
+
+EcartNoyonNorm$Cluster <- c("1-250", "251-650", "651-1000", "1001-1800", "1801-2016")
+EcartNoyonNorm$Reorder <- seq(1, 5, 1)
+
+# visualisation finale
+EcartNoyonNorm %>%
+  gather(key = Fonction, value = "Data", F1:F11) %>%
+  ggplot() +
+  geom_bar(aes(Fonction, Data, fill = Cluster), stat = "identity") +
+  labs(caption = "J. Gravier | UMR Géographie-cités 2018. Sources : BDD SHAUN") +
+  ggtitle("Trajectoire de la ville de Noyon d'après la documentation archéologique en 1984 (1er-21e s.)") +
+  labs(subtitle = "Classes composées à partir de la répartition des briques élémentaires par période (lignes) et par fonction (colonnes) \nCAH d'après méthode de Ward sur distance khi-deux") +
+  xlab("Fonctions urbaines") +
+  ylab("Moyennes des écarts par classe (résidus de Pearson)") +
+  theme(legend.position='none') +
+  theme_julie() +
+  scale_fill_tableau(palette = "colorblind10",  breaks = NULL) +
+  facet_wrap(~reorder(Cluster, Reorder)) +
+  coord_flip()
+```
+
+
+
+### Etat de la documentation en 2015
+
+Import des données
+```{r eval=TRUE}
+# jeu de données de l'opération des Halettes
+Noyon2015 <- read.csv("Noyon_2000_50ansEUDCDE_Etat2015.csv", header = T, stringsAsFactors = F,
+                      sep = ";")
+# lignes : périodes chronologiques arbitraires de 50 ans depuis les origines de Noyon jusqu'à nos jours (41 périodes),
+# colonnes : fonctions urbaines traitées (10 fonctions) & date début/date fin des périodes
+
+```
+
+
+On réordonne le tableau convenablement
+```{r eval=TRUE}
+Noyon2015 <- Noyon2015 %>%
+  unite(Dates, Debut, Fin, sep = "-", remove = FALSE) # on réunit les colonnes Début et Fin par un séparateur "-"
+rownames(Noyon2015) <- Noyon2015$Dates
+
+Noyon2015_2 <- Noyon2015 %>%
+  select(F1:F11, -F7)
+```
+
+
+Quel est l'effectif total ? Egalement, test du khi-deux
+```{r eval=TRUE}
+sum(margin.table(as.matrix(Noyon2015_2), margin = 1)) # quel est l'effectif ?
+
+chisq.test(Noyon2015_2)
+```
+
+
+Exploration du jeu de données en analyse factorielle des correspondances grâce à la librairie explor
+```{r eval=TRUE}
+AFC_Noyon_2015 <- dudi.coa(Noyon2015_2,
+                           scannf = FALSE,
+                           nf = ncol(Noyon2015_2))
+# explor(AFC_Noyon_1985) 
+# lancer la commande ci-dessus normalement (ici ajout de la commande en mode commentaire car un document R Markdown statique ne gère par les applications Shiny interactives)
+```
+
+
+L'objectif est maintenant de regrouper les périodes chronologiques qui sont similaires. On va réaliser une CAH (classification ascendante hiérarchique) sur les coordonnées de l'AFC.
+```{r eval=TRUE}
+CAH_k2_Noyon_2015 <- Noyon2015_2 %>%
+  CAH_DistKhi2() # CAH sur les coordonnées de l'AFC
+
+inertie_2 <- sort(CAH_k2_Noyon_2015$height, decreasing = TRUE)
+plot(inertie_2, type = "h", xlab = "Nombre de classes", ylab = "Inertie")
+
+inertie_2_k <- inertie_2/sum(inertie_2)*100
+barplot(inertie_2_k[1:41], col = "#454847", border = "#454847", names.arg = seq(1, 41, 1),
+        xlab = "Nombre de classes",
+        ylab = "Part de l'inertie totale (%)",
+        main = "Noyon d'après un état des connaissances en 2015 : CAH sur distance khi-deux")
+# donc pour le présent cas, on peut découper en 5
+
+# Visuellement, cela correpond à :
+plot(CAH_k2_Noyon_2015, hang = -1, cex = 0.6, 
+     main = "Noyon d'après un état des connaissances en 2015 : CAH sur distance khi-deux",
+     xlab = "Périodes chronologiques",
+     ylab = "")
+rect.hclust(CAH_k2_Noyon_2015, 5, border = "darkorange")
+```
+
+
+Au final, l'objectif est de présicer comment qualifier ces classes chronologiques selon la surreprésentation ou la sous-représentation des fonctions urbaines.
+``` {r eval=TRUE}
+# on découpe préalablement notre arbre de la CAH en deux classes
+TypochronoNk_2015 <- cutree(CAH_k2_Noyon_2015, k = 5)  # k = nombre de classes
+```
+
+
+Visualisation des moyennes des écarts normalisés par classes de périodes
+``` {r eval=TRUE}
+# En normalisant les écarts à l'indépendance
+EcartNoyonNorm2015 <- Noyon2015_2 %>%
+  TabEcartPearsonResidus() %>% # Résidus de Pearson
+  mutate(Cluster = factor(TypochronoNk_2015, levels = 1:5))
+EcartNoyonNorm2015$Dates <- Noyon2015$Dates
+
+write.csv(EcartNoyonNorm2015, "Noyon_EcartIndeNorm_2015.csv")
+
+EcartNoyonNorm2015 <- EcartNoyonNorm2015 %>%
+  select(-Dates) %>%
+  group_by(Cluster)
+EcartNoyonNorm2015 <- EcartNoyonNorm2015 %>%
+  summarise_all(funs(mean))
+write.csv(EcartNoyonNorm2015, "Noyon_EcartIndeNorm_meanCluster_2015.csv")
+
+EcartNoyonNorm2015$Cluster <- c("1-250", "251-650", "651-1000", "1001-1800", "1801-2016")
+EcartNoyonNorm2015$Reorder <- seq(1, 5, 1)
+
+EcartNoyonNorm2015 %>%
+  gather(key = Fonction, value = "Data", F1:F11) %>%
+  ggplot() +
+  geom_bar(aes(Fonction, Data, fill = Cluster), stat = "identity") +
+  labs(caption = "J. Gravier | UMR Géographie-cités 2018. Sources : BDD SHAUN") +
+  ggtitle("Trajectoire de la ville de Noyon d'après la documentation archéologique en 2015 (1er-21e s.)") +
+  labs(subtitle = "Classes composées à partir de la répartition des briques élémentaires par période (lignes) et par fonction (colonnes) \nCAH d'après méthode de Ward sur distance khi-deux") +
+  xlab("Fonctions urbaines") +
+  ylab("Moyennes des écarts par classe (résidus de Pearson)") +
+  theme(legend.position='none') +
+  theme_julie() +
+  scale_fill_tableau(palette = "colorblind10",  breaks = NULL) +
+  facet_wrap(~reorder(Cluster, Reorder)) +
+  coord_flip()
+```
+
+
+
+
+
+
+
+
+
+
+

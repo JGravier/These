@@ -3,11 +3,14 @@ Comparer les temporalités urbaines de la ville de Noyon sur 2000 ans selon un �
 
 # Données :
 Données, état 1984 : 
+
 [![DOI](https://zenodo.org/badge/doi/10.6084/m9.figshare.6506720.v2.svg)](https://doi.org/10.6084/m9.figshare.6506720.v2)
 
 
 Données, état 2015 :
+
 [![DOI](https://zenodo.org/badge/doi/10.6084/m9.figshare.5630326.svg)](https://doi.org/10.6084/m9.figshare.5630326)
+
 
 # Pour plus d'informations :
 

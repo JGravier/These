@@ -2,7 +2,8 @@
 Comparer les temporalités urbaines de la ville de Noyon sur 2000 ans selon un état des connaissances archéologiques en 1984 (avant la création du service archéologique de la ville) et en 2015 (état de la base de données SHAUN)
 
 # Données :
-Données, état 1984 : !à mettre sur figshare
+Données, état 1984 : 
+[![DOI](https://zenodo.org/badge/doi/10.6084/m9.figshare.6506720.v2.svg)](https://doi.org/10.6084/m9.figshare.6506720.v2)
 
 
 Données, état 2015 :

@@ -285,6 +285,67 @@ EcartNoyonNorm2015 %>%
 
 
 
+### Comparaison des distances euclidiennes sur les axes 1 et 2 des AFC
+Les différences entre l'état de la documentation en 1984 et celle en 2015 au regard des CAH sur les coordonnées des AFC sont mineures. Nous avons donc souhaité observer plus attentivement les distances euclidiennes entre les périodes des deux AFC dans le but de voir s'il existe des différences en matière de rythme et d'importance des changements, au regard, uniquement, des axes 1 et 2.
+
+
+``` {r eval=TRUE}
+# Création du tableau des distances euclidiennes entre les périodes sur les axes 1 et 2 du tableau de 1984
+Coordonnees_periodes <- AFC_Noyon_1985$li[,1:2]
+Coordonnees_periodes$Dates <- Noyon1985$Dates
+Coordonnees_periodes_2 <- Coordonnees_periodes[2:41,]
+Coordonnees_periodes <- Coordonnees_periodes[1:40,]
+Coordonnees_periodes <- bind_cols(Coordonnees_periodes, Coordonnees_periodes_2) %>%
+  mutate(Dist = sqrt((Axis1 - Axis11)^2 + (Axis2 - Axis21)^2)) %>%
+  unite(Datation, Dates, Dates1, sep = " à ") %>%
+  mutate(Ordonner = seq(1, 40, 1))
+rm(Coordonnees_periodes_2)
+```
+
+
+Visualisation des distances euclidiennes sous forme de geom_step d'une période à l'autre
+
+``` {r eval=TRUE}
+lab <- Coordonnees_periodes$Datation # label pour les x
+Coordonnees_periodes %>%
+  ggplot() +
+  geom_step(aes(Ordonner, Dist), stat = "identity") +
+  theme_julie() +
+  labs(caption = "J. Gravier | UMR Géographie-cités 2018. Sources : BDD SHAUN") +
+  ggtitle("Trajectoire de Noyon sur les axes 1 et 2 de l'AFC (documentation en 1984)") +
+  labs(subtitle = "Distance euclidienne d'une période à l'autre") +
+  scale_x_continuous("", breaks = 1:40, labels = lab) +
+  ylab("Distances") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Idem sur le tableau de 2015
+``` {r eval=TRUE}
+# Création du tableau des distances euclidiennes entre les périodes sur les axes 1 et 2 du tableau de 1984
+Coordonnees_periodes_2015 <- AFC_Noyon_2015$li[,1:2]
+Coordonnees_periodes_2015$Dates <- Noyon2015$Dates
+Coordonnees_periodes_2015_2 <- Coordonnees_periodes_2015[2:41,]
+Coordonnees_periodes_2015 <- Coordonnees_periodes_2015[1:40,]
+Coordonnees_periodes_2015 <- bind_cols(Coordonnees_periodes_2015, Coordonnees_periodes_2015_2) %>%
+  mutate(Dist = sqrt((Axis1 - Axis11)^2 + (Axis2 - Axis21)^2)) %>%
+  unite(Datation, Dates, Dates1, sep = " à ") %>%
+  mutate(Ordonner = seq(1, 40, 1))
+rm(Coordonnees_periodes_2015_2)
+lab_2015 <- Coordonnees_periodes_2015$Datation # label pour les x
+
+Coordonnees_periodes_2015 %>%
+  ggplot() +
+  geom_step(aes(Ordonner, Dist), stat = "identity") +
+  theme_julie() +
+  labs(caption = "J. Gravier | UMR Géographie-cités 2018. Sources : BDD SHAUN") +
+  ggtitle("Trajectoire de Noyon sur les axes 1 et 2 de l'AFC (documentation en 2015)") +
+  labs(subtitle = "Distance euclidienne d'une période à l'autre") +
+  scale_x_continuous("", breaks = 1:40, labels = lab_2015) +
+  ylab("Distances") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
 
 
 
